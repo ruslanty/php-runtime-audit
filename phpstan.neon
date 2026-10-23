@@ -1,0 +1,20 @@
+parameters:
+    level: max
+    paths:
+        - src
+        - bin
+        - tests
+    tmpDir: .phpstan-cache
+    checkUninitializedProperties: true
+    reportUnmatchedIgnoredErrors: true
+    treatPhpDocTypesAsCertain: true
+    phpVersion:
+        min: 80500
+        max: 80599
+    excludePaths:
+        analyse:
+            - vendor
+            - .phpstan-cache
+
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon

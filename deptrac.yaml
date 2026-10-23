@@ -1,0 +1,37 @@
+deptrac:
+  ignore_uncovered_internal_classes: true
+  paths:
+    - ./src
+  layers:
+    - name: Domain
+      collectors:
+        - type: directory
+          value: src/Domain/.*
+    - name: Application
+      collectors:
+        - type: directory
+          value: src/Application/.*
+    - name: Infrastructure
+      collectors:
+        - type: directory
+          value: src/Infrastructure/.*
+    - name: Presentation
+      collectors:
+        - type: directory
+          value: src/Presentation/.*
+    - name: Framework
+      collectors:
+        - type: classNameRegex
+          value: '~^Symfony\\Component\\(Console|Yaml)(\\|$)~'
+  ruleset:
+    Domain: [ ]
+    Application:
+      - Domain
+    Infrastructure:
+      - Application
+      - Domain
+      - Framework
+    Presentation:
+      - Application
+      - Domain
+      - Framework

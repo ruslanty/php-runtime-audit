@@ -1,0 +1,30 @@
+{
+    "advisories": [
+        {
+            "id": "CVE-2026-109618",
+            "related_id": "CVE-2026-109619",
+            "title": "PHP2Shell",
+            "source": "https://www.php.net/archive/2026.php#2026-10-21-5",
+            "published": "2026-10-21",
+            "kind": "upstream-release-threshold",
+            "fixed_releases": {
+                "8.2": "8.2.35",
+                "8.3": "8.3.36",
+                "8.4": "8.4.27",
+                "8.5": "8.5.12"
+            },
+            "unsupported_branches": [
+                "5.4",
+                "5.5",
+                "5.6",
+                "7.0",
+                "7.1",
+                "7.2",
+                "7.3",
+                "7.4",
+                "8.0",
+                "8.1"
+            ]
+        }
+    ]
+}

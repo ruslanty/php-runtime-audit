@@ -1,0 +1,56 @@
+{
+    "name": "ruslanty/php-runtime-audit",
+    "description": "Scans Dockerfiles and YAML manifests for PHP image tags affected by PHP2Shell advisories",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^8.5",
+        "symfony/console": "^8.1",
+        "symfony/yaml": "^8.1"
+    },
+    "require-dev": {
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "deptrac/deptrac": "^4.7",
+        "friendsofphp/php-cs-fixer": "^3.90",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^13.4",
+        "rector/rector": "^2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "PhpRuntimeAudit\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PhpRuntimeAudit\\Tests\\": "tests/"
+        }
+    },
+    "bin": [
+        "bin/php-runtime-audit"
+    ],
+    "scripts": {
+        "format": "php-cs-fixer fix --config=.php-cs-fixer.dist.php",
+        "format:check": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --dry-run --diff",
+        "analyse": "phpstan analyse --configuration=phpstan.neon --no-progress",
+        "rector:check": "rector process --dry-run",
+        "architecture": "deptrac analyse --config-file=deptrac.yaml --fail-on-uncovered",
+        "rector:apply": "rector process",
+        "test": "phpunit --configuration=phpunit.xml",
+        "quality": [
+            "@format:check",
+            "@analyse",
+            "@rector:check",
+            "@architecture",
+            "@test"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": false
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

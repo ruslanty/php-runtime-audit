@@ -1,0 +1,8 @@
+.git
+.github
+.deptrac.cache
+.php-cs-fixer.cache
+.phpstan-cache
+.phpunit.cache
+tests
+vendor

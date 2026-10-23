@@ -1,0 +1,35 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use PhpRuntimeAudit\Application\ScanProject;
+use PhpRuntimeAudit\Infrastructure\Advisory\JsonAdvisoryPolicyLoader;
+use PhpRuntimeAudit\Infrastructure\Filesystem\RecursiveManifestDiscovery;
+use PhpRuntimeAudit\Infrastructure\Parser\DockerfileParser;
+use PhpRuntimeAudit\Infrastructure\Parser\YamlImageParser;
+use PhpRuntimeAudit\Infrastructure\Reporting\JsonReportFormatter;
+use PhpRuntimeAudit\Infrastructure\Reporting\TextReportFormatter;
+use PhpRuntimeAudit\Presentation\ScanCommand;
+use Symfony\Component\Console\Application;
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+$policy = (new JsonAdvisoryPolicyLoader())->load(dirname(__DIR__) . '/data/advisories.json');
+
+$scanner = new ScanProject(
+        new RecursiveManifestDiscovery(),
+        [new DockerfileParser(), new YamlImageParser()],
+        $policy,
+);
+
+$application = new Application('PHP Runtime Audit');
+
+$application->addCommand(new ScanCommand($scanner, [
+        'text' => new TextReportFormatter(),
+        'json' => new JsonReportFormatter(),
+]));
+
+$application->setDefaultCommand('scan');
+
+exit($application->run());
