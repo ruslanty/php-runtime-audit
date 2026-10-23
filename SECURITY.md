@@ -2,8 +2,9 @@
 
 ## Supported versions
 
-There are no tagged releases yet. Until the first release, the latest code on
-`main` is supported.
+Only the latest stable release is supported. The current supported release is
+[v0.1.0](https://github.com/ruslanty/php-runtime-audit/releases/tag/v0.1.0).
+When a newer stable release is published, support moves to that release.
 
 ## Reporting a vulnerability
 
