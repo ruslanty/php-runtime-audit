@@ -58,8 +58,8 @@ potentially vulnerable result.
 ## Scope and limits
 
 The catalog uses the [PHP security advisory](https://www.php.net/archive/2026.php#2026-10-21-5).
-The scanner checks Dockerfile `FROM` entries and `image` fields in
-single-document YAML files. A `FROM` entry that uses a build argument is
+The scanner checks Dockerfile `FROM` entries and `image` fields across
+multi-document YAML files. A `FROM` entry that uses a build argument is
 reported as `unknown`, even when the argument has a default: `docker build`
 can override that default. Explicit version tags are assessed for `php` and
 `docker.io/library/php`; digest-pinned references are `unknown` because the

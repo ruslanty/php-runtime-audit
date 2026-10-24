@@ -28,6 +28,72 @@ final class YamlImageParserTest extends TestCase
         self::assertSame(3, $references[0]->line);
     }
 
+    public function testItFindsImagesAcrossMultipleYamlDocumentsWithSourceLines(): void
+    {
+        $parser = new YamlImageParser();
+        $file = new ManifestFile('application.yaml', implode(PHP_EOL, [
+            '---',
+            'services:',
+            '  first:',
+            '    image: php:8.4.26-fpm',
+            '---',
+            'services:',
+            '  second:',
+            '    image: php:8.5.11-fpm',
+        ]));
+
+        $references = $parser->parse($file);
+
+        self::assertCount(2, $references);
+        self::assertSame(
+            [
+                'php:8.4.26-fpm',
+                'php:8.5.11-fpm',
+            ],
+            array_map(
+                static fn(ImageReference $reference): string => $reference->image,
+                $references,
+            )
+        );
+        self::assertSame(
+            [4, 8],
+            array_map(
+                static fn(ImageReference $reference): ?int => $reference->line,
+                $references,
+            )
+        );
+    }
+
+    public function testItFindsImagesAcrossDocumentsWithInlineStartMarkers(): void
+    {
+        $parser = new YamlImageParser();
+        $file = new ManifestFile('application.yaml', implode(PHP_EOL, [
+            '--- {services: {first: {image: php:8.4.26-fpm}}}',
+            '--- {services: {second: {image: php:8.5.11-fpm}}}',
+        ]));
+
+        $references = $parser->parse($file);
+
+        self::assertCount(2, $references);
+        self::assertSame(
+            [
+                'php:8.4.26-fpm',
+                'php:8.5.11-fpm',
+            ],
+            array_map(
+                static fn(ImageReference $reference): string => $reference->image,
+                $references,
+            )
+        );
+        self::assertSame(
+            [1, 2],
+            array_map(
+                static fn(ImageReference $reference): ?int => $reference->line,
+                $references,
+            )
+        );
+    }
+
     public function testItFindsImagesInYamlFlowMappings(): void
     {
         $parser = new YamlImageParser();

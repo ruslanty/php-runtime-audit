@@ -7,6 +7,7 @@ namespace PhpRuntimeAudit\Infrastructure\Parser;
 use PhpRuntimeAudit\Application\ManifestFile;
 use PhpRuntimeAudit\Application\ManifestParser;
 use PhpRuntimeAudit\Domain\ImageReference;
+use RuntimeException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -24,31 +25,50 @@ final readonly class YamlImageParser implements ManifestParser
 
     public function parse(ManifestFile $file): array
     {
-        try {
-            $document = Yaml::parse($file->contents);
-        } catch (ParseException $parseException) {
-            throw new ParseException(
-                sprintf('Invalid YAML in %s: %s', $file->path, $parseException->getMessage()),
-                $parseException->getParsedLine(),
-                $parseException->getSnippet(),
-                $file->path,
-                $parseException,
-            );
-        }
-
         $references = [];
         $usedPositions = [];
 
-        foreach ($this->imageValues($document) as $image) {
-            if (! $this->matcher->matches($image)
-                && preg_match('~\$(?:[A-Za-z_{])~', $image) !== 1
-            ) {
-                continue;
+        $documents = preg_split(
+            '~(?m)^---(?:[ \t]+(?=[^# \t\r\n])|[ \t]+(?:\#[^\r\n]*)?(?:\R|\z)|(?:\R|\z))~',
+            $file->contents,
+            -1,
+            PREG_SPLIT_OFFSET_CAPTURE,
+        );
+
+        if ($documents === false) {
+            throw new RuntimeException(sprintf('Could not split YAML documents in %s.', $file->path));
+        }
+
+        foreach ($documents as [$contents, $offset]) {
+            $lineOffset = substr_count($file->contents, chr(10), 0, $offset);
+
+            try {
+                $document = Yaml::parse($contents);
+            } catch (ParseException $parseException) {
+                $parsedLine = $parseException->getParsedLine();
+
+                throw new ParseException(
+                    sprintf('Invalid YAML in %s: %s', $file->path, $parseException->getMessage()),
+                    $parsedLine > 0
+                        ? $parsedLine + $lineOffset
+                        : $parsedLine,
+                    $parseException->getSnippet(),
+                    $file->path,
+                    $parseException,
+                );
             }
 
-            $line = $this->sourceLineLocator->locate($file->contents, $image, $usedPositions);
+            foreach ($this->imageValues($document) as $image) {
+                if (! $this->matcher->matches($image)
+                    && preg_match('~\$(?:[A-Za-z_{])~', $image) !== 1
+                ) {
+                    continue;
+                }
 
-            $references[] = new ImageReference($file->path, $line, $image);
+                $line = $this->sourceLineLocator->locate($file->contents, $image, $usedPositions);
+
+                $references[] = new ImageReference($file->path, $line, $image);
+            }
         }
 
         return $references;
