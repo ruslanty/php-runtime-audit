@@ -1,5 +1,8 @@
 # PHP Runtime Audit
 
+[![CI](https://github.com/ruslanty/php-runtime-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/ruslanty/php-runtime-audit/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 Checks PHP image tags in Dockerfiles and YAML manifests against the fixed
 upstream releases for PHP2Shell (CVE-2026-109618 and CVE-2026-109619).
 
